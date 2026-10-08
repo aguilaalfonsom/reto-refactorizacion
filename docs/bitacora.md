@@ -1,6 +1,6 @@
 # Bitácora de refactorización
 
-**Nombre:** _(completar)_
+**Nombre:** Alfonso Aguila
 **Matrícula:** _(completar)_
 **Fecha:** 8 de octubre de 2026
 **Rama:** `refactorizacion` → `main`
