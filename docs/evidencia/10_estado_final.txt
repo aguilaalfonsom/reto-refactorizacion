@@ -1,0 +1,61 @@
+$ pytest -v
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /root/.local/share/uv/tools/pytest/bin/python
+rootdir: /home/claude/work/reto-refactorizacion
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 45 items
+
+tests/test_almacen.py::test_guardar_y_cargar_conserva_los_datos PASSED   [  2%]
+tests/test_almacen.py::test_el_folio_continua_despues_de_recargar PASSED [  4%]
+tests/test_almacen.py::test_cargar_archivo_inexistente_regresa_false PASSED [  6%]
+tests/test_casos_borde.py::test_mensajes_de_error_de_alta PASSED         [  8%]
+tests/test_casos_borde.py::test_mensajes_de_error_de_venta_respetan_el_orden_de_validacion PASSED [ 11%]
+tests/test_casos_borde.py::test_mensajes_de_error_de_cotizar_stock_y_eliminar PASSED [ 13%]
+tests/test_casos_borde.py::test_cotizar_no_valida_stock_ni_modifica_nada PASSED [ 15%]
+tests/test_casos_borde.py::test_umbrales_exactos_de_descuento_por_volumen PASSED [ 17%]
+tests/test_casos_borde.py::test_descuento_vip_requiere_prefijo_y_monto_minimo PASSED [ 20%]
+tests/test_casos_borde.py::test_vip_no_aplica_en_cotizacion PASSED       [ 22%]
+tests/test_casos_borde.py::test_registro_de_venta_completo PASSED        [ 24%]
+tests/test_casos_borde.py::test_ticket_con_descuento PASSED              [ 26%]
+tests/test_casos_borde.py::test_ticket_sin_descuento_omite_la_linea PASSED [ 28%]
+tests/test_casos_borde.py::test_buscar_producto_sin_coincidencias_y_texto_vacio PASSED [ 31%]
+tests/test_casos_borde.py::test_texto_del_reporte_de_inventario PASSED   [ 33%]
+tests/test_casos_borde.py::test_texto_del_resumen_de_ventas PASSED       [ 35%]
+tests/test_casos_borde.py::test_stock_bajo_es_estrictamente_menor_a_cinco PASSED [ 37%]
+tests/test_casos_borde.py::test_mas_vendidos_conserva_el_orden_en_empates_y_respeta_n PASSED [ 40%]
+tests/test_casos_borde.py::test_formato_del_json_guardado PASSED         [ 42%]
+tests/test_casos_borde.py::test_cargar_json_corrupto_regresa_false_y_conserva_estado PASSED [ 44%]
+tests/test_casos_borde.py::test_cargar_archivo_inexistente_deja_mensaje PASSED [ 46%]
+tests/test_casos_borde.py::test_cargar_sin_contador_usa_cero PASSED      [ 48%]
+tests/test_casos_borde.py::test_cargar_reemplaza_en_sitio_las_colecciones PASSED [ 51%]
+tests/test_casos_borde.py::test_json_sin_estructura_esperada_no_borra_el_estado PASSED [ 53%]
+tests/test_casos_borde.py::test_json_que_no_es_objeto_se_rechaza PASSED  [ 55%]
+tests/test_casos_borde.py::test_archivo_binario_se_reporta_como_corrupto PASSED [ 57%]
+tests/test_casos_borde.py::test_ruta_que_es_directorio_no_truena PASSED  [ 60%]
+tests/test_casos_borde.py::test_reportes_vacios_muestran_cero_entero PASSED [ 62%]
+tests/test_gestor.py::test_agregar_producto_queda_en_inventario PASSED   [ 64%]
+tests/test_gestor.py::test_rechaza_altas_invalidas PASSED                [ 66%]
+tests/test_gestor.py::test_actualizar_stock_suma_y_resta PASSED          [ 68%]
+tests/test_gestor.py::test_eliminar_producto PASSED                      [ 71%]
+tests/test_gestor.py::test_buscar_producto_por_nombre PASSED             [ 73%]
+tests/test_gestor.py::test_venta_descuenta_stock_y_asigna_folio PASSED   [ 75%]
+tests/test_gestor.py::test_venta_sin_descuento_aplica_iva PASSED         [ 77%]
+tests/test_gestor.py::test_venta_con_descuento_por_volumen_medio PASSED  [ 80%]
+tests/test_gestor.py::test_venta_con_descuento_por_volumen_alto PASSED   [ 82%]
+tests/test_gestor.py::test_venta_cliente_vip_recibe_descuento_extra PASSED [ 84%]
+tests/test_gestor.py::test_venta_rechaza_stock_insuficiente PASSED       [ 86%]
+tests/test_gestor.py::test_venta_rechaza_producto_inexistente_y_cantidad_invalida PASSED [ 88%]
+tests/test_gestor.py::test_cotizar_coincide_con_el_total_de_la_venta PASSED [ 91%]
+tests/test_reportes.py::test_stock_bajo_detecta_los_correctos PASSED     [ 93%]
+tests/test_reportes.py::test_total_vendido_suma_las_ventas PASSED        [ 95%]
+tests/test_reportes.py::test_mas_vendidos_ordena_por_unidades PASSED     [ 97%]
+tests/test_reportes.py::test_reporte_inventario_marca_stock_bajo PASSED  [100%]
+
+============================== 45 passed in 0.16s ==============================
+
+$ ruff check src
+All checks passed!
+
+$ mypy --strict --python-version 3.10 src/*.py
+Success: no issues found in 4 source files
