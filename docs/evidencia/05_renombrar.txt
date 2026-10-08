@@ -1,0 +1,12 @@
+$ pytest -q
+........................................                                 [100%]
+40 passed in 0.11s
+
+$ ruff check src --statistics
+2	SIM115	[ ] open-file-with-context-handler
+1	C901  	[ ] complex-structure
+1	UP015 	[*] redundant-open-modes
+1	I001  	[*] unsorted-imports
+Found 5 errors.
+[*] 2 fixable with the `--fix` option.
+(ruff exit code: 1)

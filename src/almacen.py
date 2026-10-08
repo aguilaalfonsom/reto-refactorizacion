@@ -1,53 +1,71 @@
-# -*- coding: utf-8 -*-
 """Persistencia del gestor: carga y guardado de datos en JSON."""
 
 import json
 import os
+from typing import Any
 
 import gestor
 
 
-def guardar_datos(ruta):
+def guardar_datos(ruta: str) -> bool:
     """Guarda el inventario, las ventas y el folio actual en un JSON."""
-    d = {}
-    d["inventario"] = gestor.INVENTARIO
-    d["ventas"] = gestor.VENTAS
-    d["contador"] = gestor.contadorVentas
-    f = open(ruta, "w", encoding="utf-8")
-    json.dump(d, f, indent=2, ensure_ascii=False)
-    f.close()
+    datos = {
+        "inventario": gestor.INVENTARIO,
+        "ventas": gestor.VENTAS,
+        "contador": gestor.contador_ventas,
+    }
+    with open(ruta, "w", encoding="utf-8") as archivo:
+        json.dump(datos, archivo, indent=2, ensure_ascii=False)
     return True
 
 
-def cargar_datos(ruta):
+def _leer_json(ruta: str) -> dict[str, Any] | None:
+    """Lee y valida el archivo. Regresa los datos o None si no sirve.
+
+    Toda la validacion ocurre ANTES de tocar el estado global, para que un
+    archivo danado nunca deje el inventario a medio cargar.
+    """
+    try:
+        with open(ruta, encoding="utf-8") as archivo:
+            datos: Any = json.load(archivo)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        gestor.ultimo_error = "archivo corrupto"
+        return None
+    except OSError:
+        gestor.ultimo_error = "no se pudo leer el archivo"
+        return None
+    estructura_valida = (
+        isinstance(datos, dict)
+        and isinstance(datos.get("inventario"), dict)
+        and isinstance(datos.get("ventas"), list)
+    )
+    if not estructura_valida:
+        gestor.ultimo_error = "archivo corrupto"
+        return None
+    return dict(datos)
+
+
+def cargar_datos(ruta: str) -> bool:
     """Lee el archivo JSON y deja los datos en el estado global.
 
-    Regresa False si el archivo no existe o esta corrupto.
+    Regresa False si el archivo no existe o esta corrupto; en ese caso el
+    estado actual no se modifica.
     """
-    if not os.path.exists(ruta):
+    if not hay_archivo(ruta):
         gestor.ultimo_error = "el archivo no existe"
         return False
-    f = open(ruta, "r", encoding="utf-8")
-    try:
-        d = json.load(f)
-    except Exception:
-        f.close()
-        gestor.ultimo_error = "archivo corrupto"
+    datos = _leer_json(ruta)
+    if datos is None:
         return False
-    f.close()
+    # Se mutan en sitio: otros modulos guardan referencia a estos objetos.
     gestor.INVENTARIO.clear()
-    for k in d["inventario"]:
-        gestor.INVENTARIO[k] = d["inventario"][k]
+    gestor.INVENTARIO.update(datos["inventario"])
     gestor.VENTAS.clear()
-    for v in d["ventas"]:
-        gestor.VENTAS.append(v)
-    gestor.contadorVentas = d.get("contador", 0)
+    gestor.VENTAS.extend(datos["ventas"])
+    gestor.contador_ventas = datos.get("contador", 0)
     return True
 
 
-def hayArchivo(ruta):
-    # checa si ya existe el archivo de datos
-    if os.path.exists(ruta):
-        return True
-    else:
-        return False
+def hay_archivo(ruta: str) -> bool:
+    """Indica si ya existe el archivo de datos."""
+    return os.path.exists(ruta)

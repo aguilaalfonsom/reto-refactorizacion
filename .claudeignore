@@ -1,0 +1,35 @@
+# Entornos virtuales: miles de archivos de terceros que no aportan contexto
+.venv/
+venv/
+env/
+
+# Cachés y artefactos generados por Python, pytest y ruff
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Datos que genera la app al usarse (no son código fuente)
+*.log
+datos_*.json
+!datos_ejemplo.json
+
+# Logs de evidencia: son salida de comandos, no hace falta releerlos
+docs/evidencia/
+
+# Basura del sistema operativo y del editor
+.DS_Store
+__MACOSX/
+Thumbs.db
+.idea/
+.vscode/
+
+# Git interno
+.git/

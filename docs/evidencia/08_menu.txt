@@ -1,0 +1,12 @@
+$ pytest -q
+............................................                             [100%]
+44 passed in 0.11s
+
+$ ruff check src --statistics
+(ruff exit code: 0)
+# Prueba de extremo a extremo del menú interactivo
+# Misma entrada (scripts/entrada_e2e.txt) en el código ORIGINAL y el REFACTORIZADO
+$ diff salida_original.txt salida_refactorizada.txt
+(sin diferencias: SALIDA IDENTICA, 155 líneas)
+$ diff guardado_original.json guardado_refactorizado.json  (ignorando la fecha)
+(sin diferencias: JSON IDENTICO)

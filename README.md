@@ -14,41 +14,60 @@ números mágicos, estado global, código muerto, anidamiento excesivo, estilos 
 nombrado mezclados... Tu misión es **mejorarlo sin romperlo**, usando Claude
 Code como asistente.
 
+> **Estado:** refactorizado en la rama `refactorizacion`. 45 pruebas en verde,
+> `ruff check src` sin errores y `mypy --strict` sin errores. Detalle de cada
+> paso en [`docs/bitacora.md`](docs/bitacora.md). Entrega: Pull Request
+> [#1](https://github.com/aguilaalfonsom/reto-refactorizacion/pull/1) (`refactorizacion` → `main`).
+
 ### Estructura del proyecto
 
 ```
 .
+├── CLAUDE.md            # Instrucciones para Claude Code (convenciones y reglas)
+├── .claudeignore        # Archivos que Claude Code no debe leer
 ├── src/
-│   ├── gestor.py        # Lógica de productos y ventas
+│   ├── gestor.py        # Reglas de negocio: productos, ventas, cotizaciones
 │   ├── almacen.py       # Carga y guardado de datos (JSON)
 │   ├── reportes.py      # Reportes e indicadores
 │   └── main.py          # Menú interactivo de consola
-├── tests/               # Suite de pruebas (pytest) — NO la modifiques
+├── tests/               # Suite pytest original + test_casos_borde.py (nuevo)
+├── docs/
+│   ├── bitacora.md      # Registro de cada refactorización (prompts, cambios)
+│   ├── reflexion.md     # Aprendizajes y conclusiones
+│   └── evidencia/       # Salida de pytest/ruff después de cada paso
+├── scripts/
+│   └── entrada_e2e.txt  # Entrada para la prueba de extremo a extremo del menú
 ├── datos_ejemplo.json   # Datos de ejemplo para el menú interactivo
 ├── requirements.txt
-├── pyproject.toml       # Configuración del linter (ruff) — NO la modifiques
-└── BITACORA_TEMPLATE.md # Plantilla para tu bitácora de prompts
+├── pyproject.toml       # Configuración del linter (ruff)
+└── BITACORA_TEMPLATE.md # Plantilla original de la bitácora
 ```
 
 ## Instalación y ejecución
 
-Requiere Python 3.10 o superior.
+**Requisitos previos:** Python 3.10 o superior, `git` y `pip`.
+Dependencias (en `requirements.txt`): `pytest>=8.0`, `ruff>=0.6`.
 
 ```bash
-# 1. Crear y activar un entorno virtual
+# 1. Clonar el repositorio y cambiar a la rama del reto
+git clone https://github.com/aguilaalfonsom/reto-refactorizacion.git
+cd reto-refactorizacion
+git checkout refactorizacion
+
+# 2. Crear y activar un entorno virtual
 python -m venv .venv
 source .venv/bin/activate        # En Windows: .venv\Scripts\activate
 
-# 2. Instalar dependencias
+# 3. Instalar dependencias
 pip install -r requirements.txt
 
-# 3. Ejecutar la suite de pruebas (deben pasar TODAS)
+# 4. Ejecutar la suite de pruebas (45 passed)
 pytest
 
-# 4. Ejecutar el linter (al inicio reporta ~20 problemas; al final: 0)
+# 5. Ejecutar el linter (All checks passed!)
 ruff check src
 
-# 5. (Opcional) Probar la aplicación interactiva
+# 6. (Opcional) Probar la aplicación interactiva
 cd src && python main.py
 ```
 
