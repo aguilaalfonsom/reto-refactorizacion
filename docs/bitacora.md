@@ -4,6 +4,8 @@
 **Matrícula:** _(completar)_
 **Fecha:** 8 de octubre de 2026
 **Rama:** `refactorizacion` → `main`
+**Repositorio:** https://github.com/aguilaalfonsom/reto-refactorizacion
+**Pull Request:** [#1](https://github.com/aguilaalfonsom/reto-refactorizacion/pull/1)
 
 Cada refactorización se aplicó por separado, en su propio commit, y se validó
 con `pytest` y `ruff check src` antes de continuar. La salida completa de cada
@@ -155,6 +157,15 @@ cd src && mypy --strict --python-version 3.10 *.py   # opcional
 # Prueba E2E del menú (genera src/datos_ejemplo.json; no lo subas)
 cd src && cp ../datos_ejemplo.json . && python main.py < ../scripts/entrada_e2e.txt
 ```
+
+## 5. Entrega
+
+| Elemento | Ubicación |
+|---|---|
+| Repositorio público | https://github.com/aguilaalfonsom/reto-refactorizacion |
+| Pull Request | [#1 — `refactorizacion` → `main`](https://github.com/aguilaalfonsom/reto-refactorizacion/pull/1), sin conflictos |
+| Formato de entrega (plataforma) | `M1_Formato_de_entrega_Alfonso_Aguila.docx` |
+| Historial | 13 commits: código base en `main` + 12 en `refactorizacion` (configuración, red de pruebas, 8 refactorizaciones y 3 de documentación) |
 
 ## Reflexión
 

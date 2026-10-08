@@ -16,7 +16,8 @@ Code como asistente.
 
 > **Estado:** refactorizado en la rama `refactorizacion`. 45 pruebas en verde,
 > `ruff check src` sin errores y `mypy --strict` sin errores. Detalle de cada
-> paso en [`docs/bitacora.md`](docs/bitacora.md).
+> paso en [`docs/bitacora.md`](docs/bitacora.md). Entrega: Pull Request
+> [#1](https://github.com/aguilaalfonsom/reto-refactorizacion/pull/1) (`refactorizacion` → `main`).
 
 ### Estructura del proyecto
 
