@@ -19,7 +19,7 @@ def pedir_numero(mensaje):
 
 def menu():
     print("Bienvenido al gestor de la tienda La Esquina")
-    if almacen.hayArchivo(ARCHIVO):
+    if almacen.hay_archivo(ARCHIVO):
         almacen.cargar_datos(ARCHIVO)
         print("Datos cargados de", ARCHIVO)
     while True:

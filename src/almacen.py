@@ -11,7 +11,7 @@ def guardar_datos(ruta):
     d = {}
     d["inventario"] = gestor.INVENTARIO
     d["ventas"] = gestor.VENTAS
-    d["contador"] = gestor.contadorVentas
+    d["contador"] = gestor.contador_ventas
     f = open(ruta, "w", encoding="utf-8")
     json.dump(d, f, indent=2, ensure_ascii=False)
     f.close()
@@ -40,13 +40,10 @@ def cargar_datos(ruta):
     gestor.VENTAS.clear()
     for v in d["ventas"]:
         gestor.VENTAS.append(v)
-    gestor.contadorVentas = d.get("contador", 0)
+    gestor.contador_ventas = d.get("contador", 0)
     return True
 
 
-def hayArchivo(ruta):
-    # checa si ya existe el archivo de datos
-    if os.path.exists(ruta):
-        return True
-    else:
-        return False
+def hay_archivo(ruta):
+    """Indica si ya existe el archivo de datos."""
+    return os.path.exists(ruta)
