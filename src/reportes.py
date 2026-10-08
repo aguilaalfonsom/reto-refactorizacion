@@ -1,5 +1,7 @@
 """Reportes de la tienda: inventario, ventas y mas vendidos."""
 
+from collections import Counter
+
 import gestor
 
 # Por debajo de esta cantidad un producto se reporta como "stock bajo".
@@ -46,19 +48,15 @@ def total_vendido():
 
 def mas_vendidos(n=3):
     """Regresa los n productos mas vendidos como lista de (codigo, unidades)."""
-    unidades_por_codigo = {}
+    unidades_por_codigo = Counter()
     for venta in gestor.VENTAS:
-        codigo = venta["codigo"]
-        unidades_por_codigo[codigo] = (
-            unidades_por_codigo.get(codigo, 0) + venta["cantidad"]
-        )
-    ranking = list(unidades_por_codigo.items())
-    # ordenamiento de burbuja (TODO: algun dia usar sorted)
-    for i in range(len(ranking)):
-        for j in range(0, len(ranking) - i - 1):
-            if ranking[j][1] < ranking[j + 1][1]:
-                ranking[j], ranking[j + 1] = ranking[j + 1], ranking[j]
-    return ranking[0:n]
+        unidades_por_codigo[venta["codigo"]] += venta["cantidad"]
+    # sorted es estable: en empates se conserva el orden de la primera venta,
+    # igual que el ordenamiento de burbuja que habia antes.
+    ranking = sorted(
+        unidades_por_codigo.items(), key=lambda par: par[1], reverse=True
+    )
+    return ranking[:n]
 
 
 def resumen_ventas():
