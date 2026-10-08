@@ -241,3 +241,36 @@ def test_cargar_reemplaza_en_sitio_las_colecciones(tmp_path):
     assert gestor.INVENTARIO is inventario
     assert gestor.VENTAS is ventas
     assert len(ventas) == 1
+
+
+# --- Agregadas con la refactorización del manejo de errores -----------------
+# Antes, un JSON válido pero sin la clave "inventario" lanzaba KeyError DESPUÉS
+# de vaciar el inventario (estado perdido). Ahora se rechaza sin tocar nada.
+
+
+def test_json_sin_estructura_esperada_no_borra_el_estado(tmp_path):
+    ruta = tmp_path / "incompleto.json"
+    ruta.write_text('{"ventas": []}', encoding="utf-8")
+    _alta("A1")
+    assert almacen.cargar_datos(str(ruta)) is False
+    assert gestor.ultimo_error == "archivo corrupto"
+    assert "A1" in gestor.INVENTARIO
+
+
+def test_json_que_no_es_objeto_se_rechaza(tmp_path):
+    ruta = tmp_path / "lista.json"
+    ruta.write_text("[1, 2, 3]", encoding="utf-8")
+    assert almacen.cargar_datos(str(ruta)) is False
+    assert gestor.ultimo_error == "archivo corrupto"
+
+
+def test_archivo_binario_se_reporta_como_corrupto(tmp_path):
+    ruta = tmp_path / "binario.json"
+    ruta.write_bytes(b"\xff\xfe\x00\x81")
+    assert almacen.cargar_datos(str(ruta)) is False
+    assert gestor.ultimo_error == "archivo corrupto"
+
+
+def test_ruta_que_es_directorio_no_truena(tmp_path):
+    assert almacen.cargar_datos(str(tmp_path)) is False
+    assert gestor.ultimo_error == "no se pudo leer el archivo"

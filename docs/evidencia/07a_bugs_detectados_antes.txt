@@ -1,0 +1,8 @@
+# Nuevas pruebas ejecutadas contra almacen.py ORIGINAL (antes del cambio):
+E       KeyError: 'inventario'
+E       TypeError: list indices must be integers or slices, not str
+E       IsADirectoryError: [Errno 21] Is a directory: '/tmp/pytest-of-root/pytest-11/test_ruta_que_es_directorio_no0'
+FAILED tests/test_casos_borde.py::test_json_sin_estructura_esperada_no_borra_el_estado
+FAILED tests/test_casos_borde.py::test_json_que_no_es_objeto_se_rechaza - Typ...
+FAILED tests/test_casos_borde.py::test_ruta_que_es_directorio_no_truena - IsA...
+3 failed, 21 passed in 0.11s
