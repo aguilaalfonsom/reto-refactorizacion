@@ -2,11 +2,12 @@
 
 import json
 import os
+from typing import Any
 
 import gestor
 
 
-def guardar_datos(ruta):
+def guardar_datos(ruta: str) -> bool:
     """Guarda el inventario, las ventas y el folio actual en un JSON."""
     datos = {
         "inventario": gestor.INVENTARIO,
@@ -18,7 +19,7 @@ def guardar_datos(ruta):
     return True
 
 
-def _leer_json(ruta):
+def _leer_json(ruta: str) -> dict[str, Any] | None:
     """Lee y valida el archivo. Regresa los datos o None si no sirve.
 
     Toda la validacion ocurre ANTES de tocar el estado global, para que un
@@ -26,7 +27,7 @@ def _leer_json(ruta):
     """
     try:
         with open(ruta, encoding="utf-8") as archivo:
-            datos = json.load(archivo)
+            datos: Any = json.load(archivo)
     except (json.JSONDecodeError, UnicodeDecodeError):
         gestor.ultimo_error = "archivo corrupto"
         return None
@@ -41,10 +42,10 @@ def _leer_json(ruta):
     if not estructura_valida:
         gestor.ultimo_error = "archivo corrupto"
         return None
-    return datos
+    return dict(datos)
 
 
-def cargar_datos(ruta):
+def cargar_datos(ruta: str) -> bool:
     """Lee el archivo JSON y deja los datos en el estado global.
 
     Regresa False si el archivo no existe o esta corrupto; en ese caso el
@@ -65,6 +66,6 @@ def cargar_datos(ruta):
     return True
 
 
-def hay_archivo(ruta):
+def hay_archivo(ruta: str) -> bool:
     """Indica si ya existe el archivo de datos."""
     return os.path.exists(ruta)

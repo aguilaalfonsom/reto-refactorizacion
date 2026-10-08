@@ -8,12 +8,12 @@ import gestor
 STOCK_MINIMO = 5
 
 
-def formatear_moneda(monto):
+def formatear_moneda(monto: float) -> str:
     """Da formato de dinero a un monto: 12.5 -> "$12.5"."""
     return "$" + str(round(monto, 2))
 
 
-def productos_stock_bajo():
+def productos_stock_bajo() -> list[gestor.Producto]:
     """Regresa la lista de productos con stock por debajo del minimo."""
     return [
         producto
@@ -22,10 +22,10 @@ def productos_stock_bajo():
     ]
 
 
-def reporte_inventario():
+def reporte_inventario() -> str:
     """Arma el reporte del inventario, lo imprime y lo regresa como texto."""
     texto = "===== INVENTARIO =====\n"
-    valor_total = 0
+    valor_total: float = 0
     for producto in gestor.INVENTARIO.values():
         linea = (
             f"{producto['codigo']} | {producto['nombre']} | "
@@ -41,14 +41,14 @@ def reporte_inventario():
     return texto
 
 
-def total_vendido():
+def total_vendido() -> float:
     """Suma el total (con IVA) de todas las ventas registradas."""
     return round(sum(venta["total"] for venta in gestor.VENTAS), 2)
 
 
-def mas_vendidos(n=3):
+def mas_vendidos(n: int = 3) -> list[tuple[str, int]]:
     """Regresa los n productos mas vendidos como lista de (codigo, unidades)."""
-    unidades_por_codigo = Counter()
+    unidades_por_codigo: Counter[str] = Counter()
     for venta in gestor.VENTAS:
         unidades_por_codigo[venta["codigo"]] += venta["cantidad"]
     # sorted es estable: en empates se conserva el orden de la primera venta,
@@ -59,10 +59,10 @@ def mas_vendidos(n=3):
     return ranking[:n]
 
 
-def resumen_ventas():
+def resumen_ventas() -> str:
     """Arma el resumen de ventas del dia, lo imprime y lo regresa."""
     texto = "===== RESUMEN DE VENTAS =====\n"
-    total_del_dia = 0
+    total_del_dia: float = 0
     for venta in gestor.VENTAS:
         texto = texto + (
             f"Folio {venta['folio']}: {venta['nombre']} x{venta['cantidad']}"

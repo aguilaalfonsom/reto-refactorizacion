@@ -274,3 +274,15 @@ def test_archivo_binario_se_reporta_como_corrupto(tmp_path):
 def test_ruta_que_es_directorio_no_truena(tmp_path):
     assert almacen.cargar_datos(str(tmp_path)) is False
     assert gestor.ultimo_error == "no se pudo leer el archivo"
+
+
+# --- Agregada al revisar los type hints ---------------------------------------
+# Inicializar los acumuladores como 0.0 "para que el tipo sea float" cambiaba
+# el texto de los reportes vacíos de "$0" a "$0.0". Esta prueba lo fija.
+
+
+def test_reportes_vacios_muestran_cero_entero(capsys):
+    assert reportes.reporte_inventario().endswith(
+        "Valor total del inventario: $0\n"
+    )
+    assert reportes.resumen_ventas().endswith("Total del dia: $0\n")
