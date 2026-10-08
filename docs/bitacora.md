@@ -165,7 +165,7 @@ cd src && cp ../datos_ejemplo.json . && python main.py < ../scripts/entrada_e2e.
 | Repositorio público | https://github.com/aguilaalfonsom/reto-refactorizacion |
 | Pull Request | [#1 — `refactorizacion` → `main`](https://github.com/aguilaalfonsom/reto-refactorizacion/pull/1), sin conflictos |
 | Formato de entrega (plataforma) | `M1_Formato_de_entrega_Alfonso_Aguila.docx` |
-| Historial | 13 commits: código base en `main` + 12 en `refactorizacion` (configuración, red de pruebas, 8 refactorizaciones y 3 de documentación) |
+| Historial | Código base en `main`; en `refactorizacion`, un commit por paso: configuración, red de pruebas, 8 refactorizaciones y documentación |
 
 ## Reflexión
 
