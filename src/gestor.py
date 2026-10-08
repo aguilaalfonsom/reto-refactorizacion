@@ -5,6 +5,7 @@ lo fueron parchando varias personas, asi que hay de todo un poco.
 """
 
 from datetime import datetime
+from typing import NamedTuple
 
 # ---------------------------------------------------------------
 # Reglas de negocio
@@ -42,6 +43,13 @@ def reiniciar_sistema():
     VENTAS.clear()
     contadorVentas = 0
     ultimo_error = ""
+
+
+def _fallar(mensaje, resultado=False):
+    """Guarda el motivo del fallo en ultimo_error y regresa `resultado`."""
+    global ultimo_error
+    ultimo_error = mensaje
+    return resultado
 
 
 def agregarProducto(codigo, nombre, precio, stock):
@@ -101,101 +109,111 @@ def buscarProducto(texto):
     return temp2
 
 
-def registrar_venta(codigo, cantidad, cliente=""):
-    """Registra una venta completa.
+class Importes(NamedTuple):
+    """Desglose del cobro de una compra (montos sin redondear salvo total)."""
 
-    Esta funcion hace de todo: valida los datos, calcula descuentos e
-    impuestos, descuenta el stock, genera el folio, arma el ticket en
-    texto y guarda el registro en la lista de ventas. Si algo falla
-    regresa None y deja el motivo en ultimo_error.
+    subtotal: float
+    descuento: float
+    impuesto: float
+    total: float
+
+
+def _descuento_por_volumen(subtotal):
+    """Descuento que corresponde al subtotal segun los umbrales de volumen."""
+    if subtotal >= UMBRAL_DESCUENTO_ALTO:
+        return subtotal * TASA_DESCUENTO_ALTO
+    if subtotal >= UMBRAL_DESCUENTO_MEDIO:
+        return subtotal * TASA_DESCUENTO_MEDIO
+    return 0
+
+
+def _es_cliente_vip(cliente):
+    """Indica si el codigo de cliente tiene el prefijo VIP."""
+    return bool(cliente) and cliente.startswith(PREFIJO_CLIENTE_VIP)
+
+
+def _calcular_importes(precio, cantidad, cliente=None):
+    """Calcula subtotal, descuentos, IVA y total de una compra.
+
+    Es la unica fuente de verdad de los precios: la usan tanto
+    registrar_venta como cotizar, asi que nunca pueden diferir.
     """
-    global contadorVentas, ultimo_error
-    temp2 = None
-    if codigo is not None and codigo != "":
-        if codigo in INVENTARIO:
-            if cantidad is not None and cantidad > 0:
-                if INVENTARIO[codigo]["stock"] >= cantidad:
-                    temp2 = INVENTARIO[codigo]
-                else:
-                    ultimo_error = "stock insuficiente"
-                    return None
-            else:
-                ultimo_error = "cantidad invalida"
-                return None
-        else:
-            ultimo_error = "producto no existe"
-            return None
-    else:
-        ultimo_error = "codigo vacio"
-        return None
-    # calculo del subtotal
-    aux = temp2["precio"] * cantidad
-    # descuentos por volumen de compra
-    desc = 0
-    if aux >= UMBRAL_DESCUENTO_ALTO:
-        desc = aux * TASA_DESCUENTO_ALTO
-    else:
-        if aux >= UMBRAL_DESCUENTO_MEDIO:
-            desc = aux * TASA_DESCUENTO_MEDIO
-        else:
-            desc = 0
-    # los clientes cuyo codigo empieza con VIP tienen un extra,
-    # pero solo si su compra (ya con descuento) pasa de cierto monto
-    if cliente != "" and cliente is not None:
-        if len(cliente) >= 3:
-            if cliente[0:3] == PREFIJO_CLIENTE_VIP:
-                if aux - desc > MONTO_MINIMO_VIP:
-                    desc = desc + aux * TASA_DESCUENTO_VIP
-    base = aux - desc
+    subtotal = precio * cantidad
+    descuento = _descuento_por_volumen(subtotal)
+    if _es_cliente_vip(cliente) and subtotal - descuento > MONTO_MINIMO_VIP:
+        descuento = descuento + subtotal * TASA_DESCUENTO_VIP
+    base = subtotal - descuento
     impuesto = base * TASA_IVA
-    total = round(base + impuesto, 2)
-    # descontar del inventario
-    temp2["stock"] = temp2["stock"] - cantidad
+    return Importes(subtotal, descuento, impuesto, round(base + impuesto, 2))
+
+
+def _validar_venta(codigo, cantidad):
+    """Regresa el motivo por el que la venta no procede, o None si es valida."""
+    if not codigo:
+        return "codigo vacio"
+    if codigo not in INVENTARIO:
+        return "producto no existe"
+    if cantidad is None or cantidad <= 0:
+        return "cantidad invalida"
+    if INVENTARIO[codigo]["stock"] < cantidad:
+        return "stock insuficiente"
+    return None
+
+
+def _armar_ticket(venta, mostrar_descuento):
+    """Genera el ticket en texto plano de una venta ya registrada."""
+    lineas = [
+        NOMBRE_TIENDA,
+        "----------------------------",
+        f"Folio: {venta['folio']}",
+        f"{venta['nombre']} x{venta['cantidad']}",
+        f"Subtotal: ${venta['subtotal']}",
+    ]
+    if mostrar_descuento:
+        lineas.append(f"Descuento: -${venta['descuento']}")
+    lineas.append(f"IVA: ${venta['impuesto']}")
+    lineas.append(f"TOTAL: ${venta['total']}")
+    return "\n".join(lineas) + "\n"
+
+
+def registrar_venta(codigo, cantidad, cliente=""):
+    """Registra una venta: valida, cobra, descuenta stock y genera el ticket.
+
+    Si algo falla regresa None y deja el motivo en ultimo_error.
+    """
+    global contadorVentas
+    error = _validar_venta(codigo, cantidad)
+    if error:
+        return _fallar(error, None)
+
+    producto = INVENTARIO[codigo]
+    importes = _calcular_importes(producto["precio"], cantidad, cliente)
+    producto["stock"] = producto["stock"] - cantidad
     contadorVentas = contadorVentas + 1
-    venta = {}
-    venta["folio"] = contadorVentas
-    venta["codigo"] = codigo
-    venta["nombre"] = temp2["nombre"]
-    venta["cantidad"] = cantidad
-    venta["subtotal"] = round(aux, 2)
-    venta["descuento"] = round(desc, 2)
-    venta["impuesto"] = round(impuesto, 2)
-    venta["total"] = total
-    venta["cliente"] = cliente
-    venta["fecha"] = datetime.now().strftime(FORMATO_FECHA)
-    # armar el ticket en texto plano
-    t = ""
-    t = t + NOMBRE_TIENDA + "\n"
-    t = t + "----------------------------\n"
-    t = t + "Folio: " + str(venta["folio"]) + "\n"
-    t = t + venta["nombre"] + " x" + str(cantidad) + "\n"
-    t = t + "Subtotal: $" + str(venta["subtotal"]) + "\n"
-    if desc > 0:
-        t = t + "Descuento: -$" + str(venta["descuento"]) + "\n"
-    t = t + "IVA: $" + str(venta["impuesto"]) + "\n"
-    t = t + "TOTAL: $" + str(venta["total"]) + "\n"
-    venta["ticket"] = t
+    venta = {
+        "folio": contadorVentas,
+        "codigo": codigo,
+        "nombre": producto["nombre"],
+        "cantidad": cantidad,
+        "subtotal": round(importes.subtotal, 2),
+        "descuento": round(importes.descuento, 2),
+        "impuesto": round(importes.impuesto, 2),
+        "total": importes.total,
+        "cliente": cliente,
+        "fecha": datetime.now().strftime(FORMATO_FECHA),
+    }
+    venta["ticket"] = _armar_ticket(venta, importes.descuento > 0)
     VENTAS.append(venta)
     return venta
 
 
 def cotizar(codigo, cantidad):
-    """Calcula cuanto costaria una compra sin registrar la venta."""
-    global ultimo_error
-    if codigo not in INVENTARIO:
-        ultimo_error = "producto no existe"
-        return None
-    if cantidad is None or cantidad <= 0:
-        ultimo_error = "cantidad invalida"
-        return None
-    aux = INVENTARIO[codigo]["precio"] * cantidad
-    desc = 0
-    if aux >= UMBRAL_DESCUENTO_ALTO:
-        desc = aux * TASA_DESCUENTO_ALTO
-    else:
-        if aux >= UMBRAL_DESCUENTO_MEDIO:
-            desc = aux * TASA_DESCUENTO_MEDIO
-    base = aux - desc
-    total = base + base * TASA_IVA
-    return round(total, 2)
+    """Calcula cuanto costaria una compra sin registrar la venta.
 
+    No valida stock ni aplica el descuento VIP.
+    """
+    if codigo not in INVENTARIO:
+        return _fallar("producto no existe", None)
+    if cantidad is None or cantidad <= 0:
+        return _fallar("cantidad invalida", None)
+    return _calcular_importes(INVENTARIO[codigo]["precio"], cantidad).total
